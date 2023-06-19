@@ -61,6 +61,8 @@ jobs:
               sys.exit(1)
           EOF
           )
+          json_string=$(cat $json_file_url)
+          echo "## json string ## $json_string"
           echo "$python_script" >> asset_extension_helper_script.py
           echo "came here"
           json_file_url=${{ github.event.inputs.file_url }}
