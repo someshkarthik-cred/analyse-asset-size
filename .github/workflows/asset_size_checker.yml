@@ -66,8 +66,6 @@ jobs:
           echo "it's here now"
           json_file_url=${{ github.event.inputs.file_url }}
           echo "hellow buddy $json_file_url"
-          json_string=$(cat $json_file_url)
-          echo "## json string ## $json_string"
           echo "## input script ## $json_file_url"
           extension_str=$(python3 asset_extension_helper_script.py $json_file_url extension_list)
           echo "## output $extension_str"
