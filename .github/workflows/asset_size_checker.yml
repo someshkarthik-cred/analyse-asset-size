@@ -62,6 +62,7 @@ jobs:
           json_file_url=${{ github.event.inputs.file_url }}
           echo "## input script ## $json_file_url"
           extension_str=$(python3 asset_extension_helper_script.py $json_file_url extension_list)
+          echo "## output $extension_str"
           IFS=',' read -ra extension_list <<< "$extension_str"
           output_files=$(git diff --name-only origin/${{ github.base_ref }}...origin/${{ github.head_ref }} --diff-filter=ACM -- $(printf "*.%s\n" "${extension_list[@]}" | xargs))
           unset IFS
