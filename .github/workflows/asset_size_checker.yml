@@ -26,10 +26,10 @@ jobs:
           import os
           file_path = sys.argv[1]
           function = sys.argv[2]
-
+          
           with open(file_path, 'r') as f:
               extension_data = json.load(f)
-
+          
           if function == "extension_list":
               extension_list = []
               for item in extension_data["size_limit_table"]:
@@ -52,7 +52,7 @@ jobs:
           elif function == "supported_extension_table":
               markdown = "File type | Format | Threshold\n--- | --- | ---\n"
               for item in extension_data["size_limit_table"]:
-                  extensions = ', '.join([f"`{ext}`" for ext in item["supported_extensions"]])
+                  extensions = ', '.join([f"\`{ext}\`" for ext in item["supported_extensions"]])
                   markdown += f"{item['name']} | {extensions} | {item['limit']}KB\n"
               print(markdown)
           else:
