@@ -62,7 +62,7 @@ jobs:
           EOF
           )
           echo "$python_script" >> asset_extension_helper_script.py
-          json_file_url="${{ github.event.inputs.file_url }}"
+          json_file_url="${{ inputs.file_url }}"
           extension_str=$(python3 asset_extension_helper_script.py "$json_file_url" extension_list)
           IFS=',' read -ra extension_list <<< "$extension_str"
           output_files=$(git diff --name-only origin/${{ github.base_ref }}...origin/${{ github.head_ref }} --diff-filter=ACM -- $(printf "*.%s\n" "${extension_list[@]}" | xargs))
@@ -91,7 +91,7 @@ jobs:
             echo $expected_limit
           }
 
-          json_file_url="${{ github.event.inputs.file_url }}"
+          json_file_url="${{ inputs.file_url }}"
           filtered_asset_files="${{ env.output_files }}"
           
           if [ -z "$filtered_asset_files" ]; then
