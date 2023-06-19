@@ -24,6 +24,7 @@ jobs:
           import sys
           import json
           import os
+          print(sys.argv)
           file_path = sys.argv[1]
           function = sys.argv[2]
           
