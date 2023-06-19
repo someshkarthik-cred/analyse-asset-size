@@ -10,7 +10,7 @@ on:
 
 jobs:
   check_asset_size:
-      runs-on: [self-hosted, macOS, release, iOS]
+      runs-on: [self-hosted]
       timeout-minutes: 10
       steps:
       - name: Checkout code
