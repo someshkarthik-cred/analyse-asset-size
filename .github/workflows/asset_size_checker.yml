@@ -20,9 +20,49 @@ jobs:
       - name: List changed files
         id: list_changed_files
         run: |
+          python_script='''import sys
+          import json
+          import os
+          # 'Scripts/Helper Files/asset_extension_data.json'
+          file_path = sys.argv[1]
+          function = sys.argv[2]
+
+          with open(file_path, 'r') as f:
+              extension_data = json.load(f)
+
+          if function == "extension_list":
+              extension_list = []
+              for item in extension_data["size_limit_table"]:
+                  extension_str = ','.join(item["supported_extensions"] + item["unsupported_extensions"])
+                  extension_list.append(extension_str)
+              print(",".join(extension_list))
+          elif function == "size_limit":
+              size_limit_table = extension_data["size_limit_table"]
+              extension = sys.argv[3]
+              for item in size_limit_table:
+                  supported_extension=item["supported_extensions"]
+                  if extension in supported_extension:
+                      print(item["limit"])
+                      sys.exit(0)
+              sys.exit(1)
+          elif function == "supported_extensions":
+              size_limit_table = extension_data["size_limit_table"]
+              print(",".join(",".join(item["supported_extensions"]) for item in size_limit_table))
+              sys.exit(0)
+          elif function == "supported_extension_table":
+              markdown = "File type | Format | Threshold\n--- | --- | ---\n"
+              for item in extension_data["size_limit_table"]:
+                  extensions = ', '.join([f"`{ext}`" for ext in item["supported_extensions"]])
+                  markdown += f"{item['name']} | {extensions} | {item['limit']}KB\n"
+              print(markdown)
+          else:
+              print("🚨 Unknown format. please fix the script for any discrepency 🚨")
+              sys.exit(1)
+          '''
+          echo "$python_script" > asset_extension_helper_script.py
           json_file_url=${{ github.event.inputs.file_url }}
           echo "## input script ## $json_file_url"
-          extension_str=$(python3 ${{ github.workspace }}/Scripts/asset_extension_helper_script.py $json_file_url extension_list)
+          extension_str=$(python3 asset_extension_helper_script.py $json_file_url extension_list)
           IFS=',' read -ra extension_list <<< "$extension_str"
           output_files=$(git diff --name-only origin/${{ github.base_ref }}...origin/${{ github.head_ref }} --diff-filter=ACM -- $(printf "*.%s\n" "${extension_list[@]}" | xargs))
           unset IFS
@@ -42,7 +82,7 @@ jobs:
           }
           
           size_limit() {
-            expected_limit=$(python3 ${{ github.workspace }}/Scripts/asset_extension_helper_script.py $json_file_url size_limit $extension)
+            expected_limit=$(python3 asset_extension_helper_script.py $json_file_url size_limit $extension)
             exit_code=$?
             if [ "$exit_code" != "0" ]; then
               exit 1
@@ -67,7 +107,7 @@ jobs:
           echo "--- | --- | --- | ---" >> file_table.md
           has_encountered_error=false
           
-          supported_extensions_str=$(python3 ${{ github.workspace }}/Scripts/asset_extension_helper_script.py $json_file_url supported_extensions)
+          supported_extensions_str=$(python3 asset_extension_helper_script.py $json_file_url supported_extensions)
           IFS=',' read -ra SUPPORTED_EXTENSIONS <<< "$supported_extensions_str"
           unset IFS
 
@@ -95,7 +135,7 @@ jobs:
           echo "<!-- End of table -->" >> file_table.md
           
           echo "### Supported File Formats And Threshold" >> file_table.md
-          file_format_table=$(python3 ${{ github.workspace }}/Scripts/asset_extension_helper_script.py $json_file_url supported_extension_table)
+          file_format_table=$(python3 asset_extension_helper_script.py $json_file_url supported_extension_table)
           echo "$file_format_table" >> file_table.md
           echo "<!-- End of table -->" >> file_table.md
 
