@@ -20,7 +20,8 @@ jobs:
       - name: List changed files
         id: list_changed_files
         run: |
-          python_script='''import sys
+          python_script=$(cat << EOF
+          import sys
           import json
           import os
           file_path = sys.argv[1]
@@ -57,7 +58,8 @@ jobs:
           else:
               print("🚨 Unknown format. please fix the script for any discrepency 🚨")
               sys.exit(1)
-          '''
+          EOF
+          )
           echo "$python_script" >> asset_extension_helper_script.py
           echo "came here"
           json_file_url=${{ github.event.inputs.file_url }}
