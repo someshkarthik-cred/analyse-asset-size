@@ -9,7 +9,7 @@ on:
         type: string
 
 jobs:
-  check_asset_size:
+  check_file_size:
       runs-on: ubuntu-latest
       timeout-minutes: 10
       steps:
@@ -22,7 +22,7 @@ jobs:
         run: |
           json_file_url=${{ github.event.inputs.file_url }}
           echo "## input script ## $json_file_url"
-          extension_str=$(python3 Scripts/asset_extension_helper_script.py $json_file_url extension_list)
+          extension_str=$(python3 ${{ github.workspace }}/Scripts/asset_extension_helper_script.py $json_file_url extension_list)
           IFS=',' read -ra extension_list <<< "$extension_str"
           output_files=$(git diff --name-only origin/${{ github.base_ref }}...origin/${{ github.head_ref }} --diff-filter=ACM -- $(printf "*.%s\n" "${extension_list[@]}" | xargs))
           unset IFS
@@ -42,7 +42,7 @@ jobs:
           }
           
           size_limit() {
-            expected_limit=$(python3 Scripts/asset_extension_helper_script.py $json_file_url size_limit $extension)
+            expected_limit=$(python3 ${{ github.workspace }}/Scripts/asset_extension_helper_script.py $json_file_url size_limit $extension)
             exit_code=$?
             if [ "$exit_code" != "0" ]; then
               exit 1
@@ -67,7 +67,7 @@ jobs:
           echo "--- | --- | --- | ---" >> file_table.md
           has_encountered_error=false
           
-          supported_extensions_str=$(python3 Scripts/asset_extension_helper_script.py $json_file_url supported_extensions)
+          supported_extensions_str=$(python3 ${{ github.workspace }}/Scripts/asset_extension_helper_script.py $json_file_url supported_extensions)
           IFS=',' read -ra SUPPORTED_EXTENSIONS <<< "$supported_extensions_str"
           unset IFS
 
@@ -95,7 +95,7 @@ jobs:
           echo "<!-- End of table -->" >> file_table.md
           
           echo "### Supported File Formats And Threshold" >> file_table.md
-          file_format_table=$(python3 Scripts/asset_extension_helper_script.py $json_file_url supported_extension_table)
+          file_format_table=$(python3 ${{ github.workspace }}/Scripts/asset_extension_helper_script.py $json_file_url supported_extension_table)
           echo "$file_format_table" >> file_table.md
           echo "<!-- End of table -->" >> file_table.md
 
